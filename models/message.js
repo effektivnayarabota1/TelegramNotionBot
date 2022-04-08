@@ -1,44 +1,63 @@
-export class Message {
-    constructor(ctx) {
-        // this.cli = {}
-        // this.cli.id = ctx.message.message_id
-        // this.cli.text = ctx.message.text
+export default class Message {
+    // constructor(ctx) {
+    //     (async () => {
 
-        // const botMessage = ctx.message.reply_to_message
-        // let botEntities
-        // if (botMessage) {
-        //     botEntities = botMessage.entities
-        // }
-
-        // if (botEntities) {
-        //     this.bot = {}
-        //     this.bot.text = botMessage.text
-        //     this.botMsgToUrlId(botEntities)
-        //     this.cliMsgToNotes(ctx, 'blocks')
-        // } else this.cliMsgToNotes(ctx)
-
-        // return new Promise(resolve => {
-        //     resolve(ctx)
-        // })
-    }
+    //     })()
+    // }
 
     async init(ctx) {
+        const botMessage = ctx.message.reply_to_message
+        if (botMessage.voice) throw new Error('Отправьте родительскую сообщение этого голосового.')
+        else if (botMessage.photo) throw new Error('Отправьте родительскую сообщение этого изображения.')
+        this.cli = {
+            id: ctx.message.message_id,
+            text: ctx.message.text ? ctx.message.text : null,
+            photo: ctx.message.photo ? await this.photo(ctx) : null,
+            voice: ctx.message.voice ? await this.voice(ctx) : null,
+        }
+        if (botMessage) {
+            this.bot = {}
+            this.bot.type = await this.msgType(botMessage)
+            this.bot.text = botMessage.text
+            this.bot.title = await this.title(botMessage)
+            this.bot.parentUrl = await this.parentUrl(botMessage)
+            this.bot.parentId = await urlToId(this.bot.parentUrl)
+            this.bot.url = await this.url(botMessage)
+            this.bot.id = await urlToId(this.bot.url)
+        }
+        return this;
+    }
+
+    //Client message.
+    async init1(ctx) {
         this.cli = {}
         this.cli.id = ctx.message.message_id
-        this.cli.text = ctx.message.text
+        if (ctx.message.text) this.cli.text = ctx.message.text
 
         const botMessage = ctx.message.reply_to_message
+
         let botEntities
         if (botMessage) {
             botEntities = botMessage.entities
+            if (botMessage.voice) {
+                throw new Error('Отправьте родительскую сообщение этого голосового.')
+            } else if (botMessage.photo) {
+                throw new Error('Отправьте родительскую сообщение этого изображения.')
+            }
         }
 
         if (botEntities) {
             this.bot = {}
             this.bot.text = botMessage.text
             await this.botMsgToUrlId(botEntities)
-            await this.cliMsgToNotes(ctx, 'blocks')
-        } else this.cliMsgToNotes(ctx)
+            if (ctx.message.voice) await this.cliVoiceToFile(ctx)
+            else await this.cliMsgToNotes(ctx, 'blocks')
+        } else {
+            if (ctx.message.text) this.cliMsgToNotes(ctx)
+            else if (ctx.message.voice) await this.cliVoiceToFile(ctx)
+            else if (ctx.message.photo) await this.cliPhotoToFile(ctx)
+            else throw new Error('Данный тип файла неподдерживатеся.')
+        }
     }
 
     async cliMsgToNotes(ctx, option) {
@@ -69,10 +88,73 @@ export class Message {
         }
     }
 
+    async photo(ctx) {
+        const photos = ctx.message.photo
+        const id = photos[photos.length - 1].file_id
+        return await ctx.telegram.getFileLink(id).then(res => {
+            return {
+                link: res.href,
+                id: id,
+                caption: ctx.message.caption
+            }
+        })
+    }
+
+    async voice(ctx) {
+        const id = ctx.message.voice.file_id
+        return await ctx.telegram.getFileLink(id).then(res => {
+            return {
+                link: res.href,
+                id: id,
+            }
+        })
+    }
+
+    //Bot message.
+    async msgType(botMessage) {
+        const entities = botMessage.entities
+        if (entities[0].offset == 0 && entities[0].type == 'text_link') return 'page'
+        else if (entities[entities.length - 1].type == 'text_link' && entities[entities.length - 2].type == 'text_link') return 'block'
+        else throw new Error('Отправьте корректное сообщение.')
+    }
+
+    async title(botMessage) {
+        const type = this.bot.type
+        const entities = botMessage.entities
+        if (type == 'page') {
+            if (entities.length > 1) {
+                const title = entities[1]
+                return this.bot.text.slice(title.offset, title.offset + title.length)
+            } else {
+                return this.bot.text
+            }
+        } else if (type == 'block') return null
+    }
+
+    async parentUrl(botMessage) {
+        const type = this.bot.type
+        const entities = botMessage.entities
+        if (type == 'page') {
+            return await entities[0].url
+        } else if (type == 'block') {
+            return entities[entities.length - 2].url
+        }
+    }
+
+    async url(botMessage) {
+        const type = this.bot.type
+        const entities = botMessage.entities
+        if (type == 'page') {
+            return null
+        } else if (type == 'block') {
+            return entities[entities.length - 1].url
+        }
+    }
+
     async botMsgToUrlId(botEntities) {
         // if (this.bot) this.bot = {}
         const ent = botEntities
-        if (ent[0].offset == 0) {
+        if (ent[0].offset == 0 && ent[0].type == 'text_link') {
             // Title
             if (ent.length > 1) {
                 const title = ent[1]
@@ -81,7 +163,7 @@ export class Message {
             this.bot.parentUrl = await ent[0].url
             this.bot.parentId = await urlToId(ent[0].url)
             delete await this.bot.text
-        } else {
+        } else if (ent[ent.length - 1].type == 'text_link' && ent[ent.length - 2].type == 'text_link') {
             // Block
             const parentDot = ent[ent.length - 2]
             const childDot = ent[ent.length - 1]
@@ -91,11 +173,14 @@ export class Message {
 
             this.bot.childUrl = childDot.url
             this.bot.childId = await urlToId(childDot.url)
+        } else {
+            throw new Error('Отправьте корректное сообщение.')
         }
     }
 }
 
 async function urlToId(url) {
+    if (!url) return null
     const urlArray = url.split('/')
     const urlId = urlArray[urlArray.length - 1].split('-')
     const URL = urlId[urlId.length - 1]

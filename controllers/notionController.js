@@ -1,6 +1,7 @@
 import {
     Client
 } from "@notionhq/client"
+import blocksToArr from '../services/blocksToArray.js'
 const notion = new Client({
     auth: 'secret_iZi9PbvdRElfIxSS91lc9qL1nHaIKygXh31rkf7bdkT'
 })
@@ -17,8 +18,8 @@ export class Notion {
         return search
     }
 
-    static async create(PageId, title, blocks) {
-        await notion.pages.create({
+    static async createPage(PageId, title, blocks) {
+        return await notion.pages.create({
             parent: {
                 page_id: PageId
             },
@@ -30,27 +31,90 @@ export class Notion {
                 }]
             }
         }).then(res => {
-            this.parent = {
+            const title = res.properties.title.title[0].text.content
+            const url = res.url
+            const id = res.id
+            return [{
                 title: title,
-                url: res.url,
-                id: res.id
-            }
+                url: url,
+                id: id
+            }]
         })
-
-        if (blocks) await this.appendChilds(this.parent.id, blocks)
-        return this
+        // return this
     }
 
-    static async remove(id) {
+    static async appendChilds(parentId, blocks) {
+        //TODO Почему-то не могу вернуть значение прямо в then. Почему?
+        let output
+        await notion.blocks.children.append({
+            block_id: parentId,
+            children: blocks
+        }).then(async res => {
+            output = await blocksToArr(res.results, parentId)
+        }).catch(async e => {
+            if (e.code = 'object_not_found') {
+                await this.discowerTitleById(parentId)
+                throw new Error('Блок не найден.')
+            } else throw new Error(e.code)
+        })
+        return output
+    }
+
+    static async appendAudio(parentId, fileLink) {
+        let id
+        await notion.blocks.children.append({
+            block_id: parentId,
+            children: [{
+                type: 'audio',
+                audio: {
+                    type: "external",
+                    external: {
+                        url: fileLink
+                    }
+                }
+            }]
+        }).then(res => id = res.results[0].id)
+        return id
+    }
+
+    static async appendPhoto(parentId, fileLink) {
+        let id
+        await notion.blocks.children.append({
+            block_id: parentId,
+            children: [{
+                type: 'image',
+                image: {
+                    type: "external",
+                    external: {
+                        url: fileLink
+                    }
+                }
+            }]
+        }).then(res => {
+            id = res.results[0].id
+        })
+        return id
+    }
+
+    static async remove(id, option) {
         this.childrens = []
         await notion.blocks.delete({
             block_id: id,
         }).then(async res => {
-            console.log(res)
-            let text
-            res.has_children ? text = res.child_page.title : text = res.paragraph.rich_text[0].text.content
+            if (option == 'empty') return
+            let text, voiceUrl
+            if (res.type == 'audio') {
+                voiceUrl = res.audio.external.url
+            } else if (res.type == 'child_page') {
+                //Удалили страницу
+                text = res.child_page.title
+            } else {
+                //Удалили блок
+                text = res.paragraph.rich_text[0].text.content
+            }
             this.childrens.push({
-                text: text,
+                text: text ? text : null,
+                voiceUrl: voiceUrl ? voiceUrl : null,
                 url: await this.idToUrl(res.id),
                 has_children: res.has_children
             })
@@ -58,36 +122,16 @@ export class Notion {
         return this.childrens
     }
 
-    static async appendChilds(parentId, blocks) {
-        this.childrens = []
-        let outputArray = []
-        for (let block of blocks) {
-            outputArray.push({
-                object: 'block',
-                type: 'paragraph',
-                paragraph: {
-                    rich_text: [{
-                        type: 'text',
-                        text: {
-                            content: block
-                        },
-                    }, ],
-                },
+    static async restore(id) {
+        try {
+            await notion.pages.update({
+                page_id: id,
+                archived: false
             })
+            return true
+        } catch (e) {
+            throw new Error('Ошибка в восстановлении.')
         }
-        await notion.blocks.children.append({
-            block_id: parentId,
-            children: outputArray
-        }).then(async res => {
-            const childrens = res.results
-            for (let child of childrens) {
-                this.childrens.push({
-                    text: child.paragraph.rich_text[0].text.content,
-                    url: await this.idToUrl(child.id),
-                })
-            }
-        })
-        return this.childrens
     }
 
     static async showAllBlocks(parentId) {
@@ -95,19 +139,34 @@ export class Notion {
             block_id: parentId,
             page_size: 50,
         }).then(res => {
-            console.log(res)
             return res.results
+        }).catch(async e => {
+            if (e.code = 'object_not_found') {
+                await this.discowerTitleById(parentId)
+                throw new Error('Блок не найден.')
+            } else throw new Error(e.code)
         })
     }
 
-    static async discowerTitleById(pageId) {
+    static async discowerTitleById(pageId, option) {
         let title
         await notion.pages.retrieve({
             page_id: pageId
         }).then(res => {
-            console.log(res)
-            if (res.archived) throw new Error("Страница удалена.")
-            title = res.properties.title.title[0].text.content
+            if (res.archived) {
+                if (option == 'restore') {
+                    return false
+                } else {
+                    throw new Error('Страница удалена. Восстановите, ответив на сообщение со знаком "+".')
+                }
+            }
+            return title = res.properties.title.title[0].text.content
+        }).catch(async e => {
+            if (e.code == 'object_not_found') {
+                throw new Error('Блок не найден.')
+            } else {
+                throw new Error(e.message)
+            }
         })
         return title
     }
