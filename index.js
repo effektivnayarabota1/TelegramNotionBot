@@ -20,13 +20,7 @@ bot.help((ctx) => {
 })
 
 bot.command('list', async ctx => {
-    router.list(ctx, PageId)
-    // const messageId = ctx.message.message_id
-    // let serviceMessageId
-    // await ctx.reply('Разворачиваю заметки...').then(res => serviceMessageId = res.message_id)
-    // await Telegram.showClosedList(ctx, PageId)
-    // await ctx.deleteMessage(serviceMessageId)
-    // await ctx.deleteMessage(messageId)
+    router.message(ctx, PageId)
 })
 
 // bot.on('voice', async ctx => {

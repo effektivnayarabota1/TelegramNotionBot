@@ -1,7 +1,7 @@
 import {
     Client
 } from "@notionhq/client"
-import appendParagraph from './appendParagraph.js'
+import append from './append.js'
 import remove from "./remove.js"
 import restore from "./restore.js"
 import getAllBlocks from "./getAllBlocks.js"
@@ -29,5 +29,6 @@ export default class notionController {
 
     static async append(message) {
         console.log(message)
+        if (message.cli.paragraphs) return await append.paragraph(notion, message)
     }
 }

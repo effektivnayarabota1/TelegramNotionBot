@@ -5,17 +5,18 @@ export default class Message {
     //     })()
     // }
 
-    async init(ctx) {
+    async init(ctx, option) {
         const botMessage = ctx.message.reply_to_message
-        if (botMessage.voice) throw new Error('Отправьте родительскую сообщение этого голосового.')
-        else if (botMessage.photo) throw new Error('Отправьте родительскую сообщение этого изображения.')
         this.cli = {
             id: ctx.message.message_id,
             text: ctx.message.text ? ctx.message.text : null,
+            [option]: option == 'paragraph' ? await this.blocks(ctx) : await this.notes(ctx),
             photo: ctx.message.photo ? await this.photo(ctx) : null,
             voice: ctx.message.voice ? await this.voice(ctx) : null,
         }
         if (botMessage) {
+            if (botMessage.voice) throw new Error('Отправьте родительскую сообщение этого голосового.')
+            else if (botMessage.photo) throw new Error('Отправьте родительскую сообщение этого изображения.')
             this.bot = {}
             this.bot.type = await this.msgType(botMessage)
             this.bot.text = botMessage.text
@@ -60,32 +61,27 @@ export default class Message {
         }
     }
 
-    async cliMsgToNotes(ctx, option) {
-        const cliText = ctx.message.text
-        this.cli.notes = []
+    async notes(ctx) {
+        let output =[]
+        const notes = ctx.message.text.split(/(\n){3,}/).filter(n => n != '\n')
+        for (let note of notes) {
+            let blocks = []
+            let title
 
-        if (option == 'blocks') {
-            let blocks = cliText.split(/(\n){2,}/).filter(n => n != '\n')
-            this.cli.notes.push({
+            const lines = note.split('\n')
+
+            title = lines.splice(0, 1)[0]
+            if (lines.length) blocks = lines.join('\n').split('\n\n')
+
+            output.push({
+                title: title,
                 blocks: blocks
             })
-        } else {
-            const notes = cliText.split(/(\n){3,}/).filter(n => n != '\n')
-            for (let note of notes) {
-                let blocks = []
-                let title
-
-                const lines = note.split('\n')
-
-                title = lines.splice(0, 1)[0]
-                if (lines.length) blocks = lines.join('\n').split('\n\n')
-
-                this.cli.notes.push({
-                    title: title,
-                    blocks: blocks
-                })
-            }
         }
+        return output
+    }
+    async blocks(ctx) {
+        return ctx.message.text.split(/(\n){2,}/).filter(n => n != '\n')
     }
 
     async photo(ctx) {

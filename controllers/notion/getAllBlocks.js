@@ -28,10 +28,5 @@ export default async function getAllBlocks(notion, id, message) {
                     childrens: []
                 }
             }
-        }).catch(async e => {
-            if (e.code = 'object_not_found') {
-                await this.discowerTitleById(parentId)
-                throw new Error('Блок не найден.')
-            } else throw new Error(e.code)
         })
-};
+}

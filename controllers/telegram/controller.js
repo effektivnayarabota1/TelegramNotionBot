@@ -1,29 +1,36 @@
-import reply from '../../services/reply.js'
-import show from './show.js'
-import remove from "./remove.js"
-import restore from "./restore.js"
-import add from "./add.js"
+import notionController from "../notion/controller.js"
 
 export default class telegramController {
-    static async showPage(ctx, message, params) {
-        const res = await show.page(message, params)
-        await reply.listReply(ctx, res)
+    static async show(PageId, message, params) {
+        return await notionController.getAllBlocks(PageId, message.bot)
     }
-    static async showList(ctx, PageId) {
-        const res = await show.list(PageId)
-        await reply.listReply(ctx, res)
+    static async add(message) {
+        return await notionController.append(message)
     }
-    static async remove(ctx, message) {
-        const [res, option] = await remove(message)
-        await reply.listReply(ctx, res, option)
+    static async remove(message) {
+        const id = message.bot.id || message.bot.parentId
+        if (message.bot.type == 'page') {
+            return ([{
+                parents: await notionController.remove(id),
+                childrens: []
+            }, 'removePage'])
+        } else if (message.bot.type == 'block') {
+            return ([{
+                parents: [{
+                    title: await notionController.discowerTitleById(message.bot.parentId),
+                    url: message.bot.parentUrl,
+                }],
+                childrens: await notionController.remove(id)
+            }, 'removeBlock'])
+        }
     }
-    static async restore(ctx, message) {
-        const res = await restore(message)
-        await reply.listReply(ctx, res, 'restore')
+    static async restore(message) {
+        const parentId = message.bot.parentId
+        const isExist = await notionController.discowerTitleById(parentId, 'restore')
+        if (!isExist) {
+            return await notionController.restore(parentId)
+        } else {
+            await ctx.reply('Эта страница уже существует. Нет необходимости её восстанавливать. Для того, чтобы добавить к странице текст, просто напишите сообщение.')
+        }
     }
-
-    static async add(ctx, message) {
-        const res = await add(message)
-        // await reply.listReply(ctx, res, 'addBlock')
-    }
-};
+}
