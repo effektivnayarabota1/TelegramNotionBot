@@ -26,9 +26,6 @@ export default async function remove(notion, id, option) {
             } else if (type == 'text') {
                 text = res.paragraph.rich_text[0].text.content
             }
-
-            // console.log(res.paragraph.rich_text[0])
-            // text = res.paragraph.rich_text[0].text.content
         }
         return ([{
             title: title || null,
