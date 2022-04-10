@@ -19,7 +19,7 @@ bot.command('init', async ctx => {
     const title = message.split(' ')[1]
     const notionTokken = message.split(' ')[2]
     const PageId = message.split(' ')[3]
-    // console.log(ctx)
+    // TODO Разобраться с сессиями.
     if (!ctx.session && title && notionTokken && PageId) {
         ctx.session = {
             title: title,
@@ -28,23 +28,10 @@ bot.command('init', async ctx => {
         }
         ctx.reply(title + notionTokken + PageId)
     } else await ctx.reply(`Страница уже инициализирована.`)
-    //TODO Сделать, чтобы бот переименовывал название канала.
-    // await Telegram.setChatTitle(title + '|' + notionTokken + '|' + PageId)
 })
 
 bot.on('channel_post', async ctx => {
-    const message = ctx.update.channel_post.text
-    const words = message.split(' ')
-    if (words[0] == 'init') {
-        const title = message.split(' ')[1]
-        const notionTokken = message.split(' ')[2]
-        const PageId = message.split(' ')[3]
-
-        // TODO Сделать, чтобы бот переименовывал название канала.
-        const chatTitle = title + '|' + notionTokken + '|' + PageId
-        console.log(chatTitle)
-        await ctx.setChatTitle(chatTitle)
-    }
+    await router(ctx)
 })
 
 // try {

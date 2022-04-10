@@ -6,9 +6,9 @@ import remove from "./remove.js"
 import restore from "./restore.js"
 import getAllBlocks from "./getAllBlocks.js"
 import discowerTitleById from "./discowerTitleById.js"
-const notion = new Client({
-    auth: 'secret_iZi9PbvdRElfIxSS91lc9qL1nHaIKygXh31rkf7bdkT'
-})
+// const notion = new Client({
+//     auth: 'secret_iZi9PbvdRElfIxSS91lc9qL1nHaIKygXh31rkf7bdkT'
+// })
 
 export default class notionController {
     static async append(PageId, message) {
