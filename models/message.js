@@ -6,14 +6,14 @@ export default class Message {
     // }
 
     async init(ctx, option) {
-        const botMessage = ctx.message.reply_to_message
+        const botMessage = ctx.update.channel_post.reply_to_message
         this.cli = {
-            id: ctx.message.message_id,
-            text: ctx.message.text ? ctx.message.text : null,
-            paragraphs: option == 'paragraphs' && ctx.message.text ? await this.paragraphs(ctx) : null,
-            notes: option == 'notes' && ctx.message.text ? await this.notes(ctx) : null,
-            photo: ctx.message.photo ? await this.photo(ctx) : null,
-            voice: ctx.message.voice ? await this.voice(ctx) : null,
+            id: ctx.update.channel_post.message_id,
+            text: ctx.update.channel_post.text ? ctx.update.channel_post.text : null,
+            paragraphs: option == 'paragraphs' && ctx.update.channel_post.text ? await this.paragraphs(ctx) : null,
+            notes: option == 'notes' && ctx.update.channel_post.text ? await this.notes(ctx) : null,
+            photo: ctx.update.channel_post.photo ? await this.photo(ctx) : null,
+            voice: ctx.update.channel_post.voice ? await this.voice(ctx) : null,
         }
         if (botMessage) {
             if (botMessage.voice) throw new Error('Отправьте родительскую сообщение этого голосового.')
@@ -64,7 +64,7 @@ export default class Message {
 
     async notes(ctx) {
         let output =[]
-        const notes = await ctx.message.text.split(/(\n){3,}/).filter(n => n != '\n')
+        const notes = await ctx.update.channel_post.text.split(/(\n){3,}/).filter(n => n != '\n')
         for (let note of notes) {
             let blocks = []
 
@@ -81,11 +81,11 @@ export default class Message {
         return output
     }
     async paragraphs(ctx) {
-        return ctx.message.text.split(/(\n){2,}/).filter(n => n != '\n')
+        return ctx.update.channel_post.text.split(/(\n){2,}/).filter(n => n != '\n')
     }
 
     async photo(ctx) {
-        throw new Error('На данный момент изображения не поддерживаются.')
+        throw new Error('Фотографии в разработке...')
         const photos = ctx.message.photo
         const id = photos[photos.length - 1].file_id
         return await ctx.telegram.getFileLink(id).then(res => {

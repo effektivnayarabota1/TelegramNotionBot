@@ -3,7 +3,6 @@ import {
     // session,
     Telegram
 } from 'telegraf'
-import fetch from 'node-fetch'
 import {
     COMMANDS
 } from './config/commands.js';

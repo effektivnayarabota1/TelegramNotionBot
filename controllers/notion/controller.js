@@ -11,14 +11,14 @@ import discowerTitleById from "./discowerTitleById.js"
 // })
 
 export default class notionController {
-    static async append(PageId, message) {
+    static async append(notion, PageId, message) {
         if (message.cli.paragraphs) return [await append.paragraphs(notion, message), 'addBlocks']
         else if (message.cli.notes) return await append.notes(PageId, notion, message)
         else if (message.cli.photo) return [await append.photos(PageId, notion, message), 'addPhoto']
         else if (message.cli.voice) return [await append.voice(PageId, notion, message), 'addBlocks']
     }
 
-    static async remove(message, option) {
+    static async remove(notion, message, option) {
         // return await remove(notion, id, option)
         const id = message.bot.id || message.bot.parentId
         if (message.bot.type == 'page') {
@@ -39,15 +39,15 @@ export default class notionController {
         }
     }
 
-    static async restore(id) {
+    static async restore(notion, id) {
         return await restore(notion, id)
     }
 
-    static async getAllBlocks(id, message) {
+    static async getAllBlocks(notion, id, message) {
         return await getAllBlocks(notion, id, message)
     }
 
-    static async discowerTitleById(pageId, option) {
+    static async discowerTitleById(notion, pageId, option) {
         return await discowerTitleById(notion, pageId, option)
     }
 }
