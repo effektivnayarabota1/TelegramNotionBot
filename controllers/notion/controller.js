@@ -11,24 +11,43 @@ const notion = new Client({
 })
 
 export default class notionController {
-    static async getAllBlocks(id, message) {
-        return await getAllBlocks(notion, id, message)
+    static async append(PageId, message) {
+        if (message.cli.paragraphs) return [await append.paragraphs(notion, message), 'addBlocks']
+        else if (message.cli.notes) return await append.notes(PageId, notion, message)
+        else if (message.cli.photo) return [await append.photos(PageId, notion, message), 'addPhoto']
+        else if (message.cli.voice) return [await append.voice(PageId, notion, message), 'addBlocks']
     }
 
-    static async discowerTitleById(pageId, option) {
-        return await discowerTitleById(notion, pageId, option)
-    }
-
-    static async remove(id, option) {
-        return await remove(notion, id, option)
+    static async remove(message, option) {
+        // return await remove(notion, id, option)
+        const id = message.bot.id || message.bot.parentId
+        if (message.bot.type == 'page') {
+            return ([{
+                parents: await remove(notion, id, option),
+                childrens: []
+            }, 'removePage'])
+        } else if (message.bot.type == 'block') {
+            return ([{
+                parents: [{
+                    title: await discowerTitleById(notion, message.bot.parentId),
+                    url: message.bot.parentUrl,
+                }],
+                childrens: await remove(notion, id, option)
+            }, 'removeBlock'])
+        } else {
+            await remove(notion, id, 'empty')
+        }
     }
 
     static async restore(id) {
         return await restore(notion, id)
     }
 
-    static async append(message) {
-        console.log(message)
-        if (message.cli.paragraphs) return await append.paragraph(notion, message)
+    static async getAllBlocks(id, message) {
+        return await getAllBlocks(notion, id, message)
+    }
+
+    static async discowerTitleById(pageId, option) {
+        return await discowerTitleById(notion, pageId, option)
     }
 }

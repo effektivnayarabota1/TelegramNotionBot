@@ -35,7 +35,7 @@ export default class Reply {
                     await this.photoReply(ctx, parent)
                 }
                 if (childsQuantity) {
-                    if (option == 'addBlock') {
+                    if (option == 'addBlocks') {
                         await ctx.replyWithMarkdown(`\`+ ${childsQuantity} ▾\``)
                     } else if (option == 'removeBlock') {
                         await ctx.replyWithMarkdown(`\`- ${childsQuantity} ▾\``)
@@ -48,9 +48,7 @@ export default class Reply {
                         } else if (child.text) {
                             await this.blockReply(ctx, child.text, parentUrl, childUrl)
                         } else if (child.photoUrl) {
-                            await this.photo(ctx, {
-                                // child.photo, parentUrl, childUrl
-                            })
+                            await this.photoReply(ctx, child.photoUrl, parentUrl, childUrl)
                         }
                     }
                 }
@@ -78,13 +76,12 @@ export default class Reply {
         })
     }
 
-    static async photoReply(ctx, {photoUrl, id, parentUrl, childUrl, caption}) {
+    static async photoReply(ctx, photoUrl, parentUrl, childUrl) {
         await ctx.replyWithMarkdown(`▾   [IMAGE](${photoUrl})   [.](${parentUrl})[.](${childUrl})`)
-        ctx.replyWithMediaGroup([{
-            media: photoUrl,
-            caption: caption.length ? caption : null,
-            type: 'photo'
-        }])
+        // await ctx.replyWithPhoto(
+        //     photoUrl,
+        //     { caption: `▾   [IMAGE](${photoUrl})   [.](${parentUrl})[.](${childUrl})`, parse_mode: 'Markdown' }
+        // )
     }
 
     static async smile() {

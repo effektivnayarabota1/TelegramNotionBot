@@ -184,8 +184,6 @@ export class Telegram {
             parentUrl,
             parentId
         } = await this.message.bot || params
-        // console.log(parentId)
-        // console.log(PageId)
         if (!title) title = await Notion.discowerTitleById(parentId)
         const blocks = await Notion.showAllBlocks(parentId)
         const res = {

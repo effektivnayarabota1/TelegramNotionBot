@@ -10,12 +10,18 @@ export default async function blocksToArr(blocks, parentId) {
             url = await idToUrl(block.id)
         } else if (block.type == 'paragraph') {
             if (!block.paragraph.rich_text.length) {
-                await notionController.remove(block.id, 'empty')
+                await notionController.remove({
+                    bot: {
+                        id: block.id
+                    }
+                }, 'empty')
                 continue
             }
-            text = block.paragraph.rich_text[0].text.content
-            url = await idToUrl(block.id)
-            has_children = block.has_children
+            if (block.paragraph.rich_text[0].type == 'text') {
+                text = block.paragraph.rich_text[0].text.content
+                url = await idToUrl(block.id)
+                has_children = block.has_children
+            }
         } else if (block.type == 'child_page') {
             title = block.child_page.title
             url = await idToUrl(block.id)
@@ -24,7 +30,7 @@ export default async function blocksToArr(blocks, parentId) {
             photoUrl = block.image.external.url
             caption = block.image.caption
             url = await idToUrl(block.id)
-        }else throw new Error('Данный тип сообщения не обрабатывается.')
+        } else throw new Error('Данный тип сообщения не обрабатывается.')
 
         outputArray.push({
             title: title,

@@ -10,7 +10,8 @@ export default class Message {
         this.cli = {
             id: ctx.message.message_id,
             text: ctx.message.text ? ctx.message.text : null,
-            [option]: option == 'paragraph' ? await this.blocks(ctx) : await this.notes(ctx),
+            paragraphs: option == 'paragraphs' && ctx.message.text ? await this.paragraphs(ctx) : null,
+            notes: option == 'notes' && ctx.message.text ? await this.notes(ctx) : null,
             photo: ctx.message.photo ? await this.photo(ctx) : null,
             voice: ctx.message.voice ? await this.voice(ctx) : null,
         }
@@ -63,28 +64,28 @@ export default class Message {
 
     async notes(ctx) {
         let output =[]
-        const notes = ctx.message.text.split(/(\n){3,}/).filter(n => n != '\n')
+        const notes = await ctx.message.text.split(/(\n){3,}/).filter(n => n != '\n')
         for (let note of notes) {
             let blocks = []
-            let title
 
             const lines = note.split('\n')
 
-            title = lines.splice(0, 1)[0]
-            if (lines.length) blocks = lines.join('\n').split('\n\n')
+            const title = await lines.splice(0, 1)[0]
+            if (lines.length) blocks = await lines.join('\n').split('\n\n')
 
-            output.push({
+             output.push({
                 title: title,
                 blocks: blocks
             })
         }
         return output
     }
-    async blocks(ctx) {
+    async paragraphs(ctx) {
         return ctx.message.text.split(/(\n){2,}/).filter(n => n != '\n')
     }
 
     async photo(ctx) {
+        throw new Error('На данный момент изображения не поддерживаются.')
         const photos = ctx.message.photo
         const id = photos[photos.length - 1].file_id
         return await ctx.telegram.getFileLink(id).then(res => {

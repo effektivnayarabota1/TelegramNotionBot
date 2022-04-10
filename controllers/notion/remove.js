@@ -13,7 +13,22 @@ export default async function remove(notion, id, option) {
             title = res.child_page.title
         } else if (res.type == 'paragraph') {
             //Удалили блок
-            text = res.paragraph.rich_text[0].text.content
+
+            let type = res.paragraph.rich_text[0].type
+            if (type == 'mention') {
+                const mention = res.paragraph.rich_text[0].mention.type
+                if (mention == 'date') {
+                    let date = res.paragraph.rich_text[0].plain_text
+                    date = new Date(date.slice(0, date.length - 3))
+                    text = await date.toDateString()
+                } else throw new Error('Данное сообщение не поддерживается.')
+                //TODO Подключить все mentions
+            } else if (type == 'text') {
+                text = res.paragraph.rich_text[0].text.content
+            }
+
+            // console.log(res.paragraph.rich_text[0])
+            // text = res.paragraph.rich_text[0].text.content
         }
         return ([{
             title: title || null,

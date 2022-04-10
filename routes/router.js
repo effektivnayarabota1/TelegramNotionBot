@@ -1,13 +1,14 @@
-import Message from "../models/message.js"
 import messageRouter from "./messageRouter.js"
+import commandRouter from "./commandRouter.js"
 
 export default class router {
-    static message(ctx, PageId) {
-        console.log(PageId)
-        messageRouter.router(ctx, PageId)
+    static command(PageId, ctx) {
+        commandRouter.list(PageId, ctx)
     }
-    static voice(ctx) {
-        const message = new Message(ctx)
-        console.log(message)
+    static message(PageId, ctx) {
+        messageRouter.router(PageId, ctx)
+    }
+    static voice(PageId, ctx) {
+        messageRouter.router(PageId, ctx)
     }
 }

@@ -3,6 +3,7 @@ import discowerTitleById from './discowerTitleById.js'
 
 export default async function getAllBlocks(notion, id, message) {
     let title, parentUrl, parentId
+    try {
         if (message) {
             title = message.title
             parentUrl = message.parentUrl
@@ -29,4 +30,10 @@ export default async function getAllBlocks(notion, id, message) {
                 }
             }
         })
+    } catch (e) {
+        if (e.code == 'object_not_found') {
+            // discowerTitleById(notion, parentId)  
+            throw new Error('Объект не найден.')
+        }
+    }
 }

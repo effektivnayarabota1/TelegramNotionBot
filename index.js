@@ -16,11 +16,10 @@ bot.telegram.setMyCommands(COMMANDS)
 
 // TODO Поиск заметок при вводе слова в чат
 
-bot.help((ctx) => {
-})
+bot.help((ctx) => {})
 
 bot.command('list', async ctx => {
-    router.message(ctx, PageId)
+    router.command(PageId, ctx)
 })
 
 // bot.on('voice', async ctx => {
@@ -31,11 +30,11 @@ bot.command('list', async ctx => {
 // })
 
 bot.on('voice', async ctx => {
-    router.voice(ctx)
+    router.voice(PageId, ctx)
 })
 
 bot.on('message', async ctx => {
-    router.message(ctx)
+    router.message(PageId, ctx)
 })
 
 bot.on('message', async ctx => {
