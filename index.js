@@ -4,11 +4,13 @@ import {
 } from 'telegraf'
 import {
     COMMANDS
-} from './config/commands.js';
+} from './config/commands.js'
+import express from 'express'
+import 'dotenv/config'
 import commandRouter from './routes/commandRouter.js'
 import messageRouter from './routes/messageRouter.js'
 
-export const bot = new Telegraf('5194986661:AAEtHVGpRuFhiVOCCFsqpxj44BWdDqucBGs')
+export const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.use(session())
 bot.telegram.setMyCommands(COMMANDS)
 
@@ -17,7 +19,7 @@ bot.telegram.setMyCommands(COMMANDS)
 bot.help((ctx) => {})
 bot.command('list', async ctx => {
     try {
-        if (!ctx.session) throw new Error('Страница не зарегестрирована.')
+        if (!ctx.session) throw new Error('Страница не зарегестрирована. Инициализируйте, отправив сообщение в формате "/init <NotionTokken> <PageId>"')
         commandRouter.list(ctx)
     } catch (e) {
         ctx.reply(e.message)
@@ -32,7 +34,7 @@ bot.command('init', async ctx => {
 })
 bot.on('voice', async ctx => {
     try {
-        if (!ctx.session) throw new Error('Страница не зарегестрирована.')
+        if (!ctx.session) throw new Error('Страница не зарегестрирована. Инициализируйте, отправив сообщение в формате "/init <NotionTokken> <PageId>"')
         messageRouter.router(ctx)
     } catch (e) {
         ctx.reply(e.message)
@@ -41,11 +43,23 @@ bot.on('voice', async ctx => {
 bot.on('message', async ctx => {
     if (!ctx.message.text || ctx.message.text.match(/^\/init/im)) return
     try {
-        if (!ctx.session) throw new Error('Страница не зарегестрирована.')
+        if (!ctx.session) throw new Error('Страница не зарегестрирована. Инициализируйте, отправив сообщение в формате "`/init <NotionTokken> <PageId>`"')
         messageRouter.router(ctx)
     } catch (e) {
-        // ctx.reply(e.message)
+        // const apiTelegram = `https://api.telegram.org/bot${process.env.BOT_TOKEN}`
+        const apiTelegram = `http://localhost:3000/notion`
+        ctx.reply(`https://api.notion.com/v1/oauth/authorize?owner=user&client_id=1ea8493d-3ff0-4a50-9278-35c5bba44c83&redirect_uri=${apiTelegram}&response_type=code`)
+        ctx.replyWithMarkdown(e.message)
     }
+})
+
+const app = express()
+app.get('/notion', (req, res) => {
+    console.log(req)
+    res.send('Hello World!')
+})
+app.listen(3000, () => {
+  console.log('Example app listening on port 3000!')
 })
 
 bot.launch().then(() => console.log('———   effectivnaya telegram bot launched   ———'))

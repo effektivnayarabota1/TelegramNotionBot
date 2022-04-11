@@ -13,12 +13,10 @@ export default class commandRouter {
     }
     static async init(ctx) {
         const message = ctx.message.text
-        const title = message.split(' ')[1]
-        const notionTokken = message.split(' ')[2]
-        const PageId = message.split(' ')[3]
-        if (title && notionTokken && PageId) {
+        const notionTokken = message.split(' ')[1]
+        const PageId = message.split(' ')[2]
+        if (notionTokken && PageId) {
             ctx.session = {
-                title: title,
                 notionTokken: notionTokken,
                 PageId: PageId
             }
