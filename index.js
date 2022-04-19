@@ -55,11 +55,11 @@ bot.on('message', async ctx => {
 
 const app = express()
 app.get('/notion', (req, res) => {
-    console.log(req)
+    Telegraf.reply('λ')
     res.send('Hello World!')
 })
 app.listen(3000, () => {
-  console.log('Example app listening on port 3000!')
+    console.log('———   effectivnaya server bot launched   ———')
 })
 
 bot.launch().then(() => console.log('———   effectivnaya telegram bot launched   ———'))
