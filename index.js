@@ -5,7 +5,6 @@ import {
 import {
     COMMANDS
 } from './config/commands.js'
-import express from 'express'
 import 'dotenv/config'
 import commandRouter from './routes/commandRouter.js'
 import messageRouter from './routes/messageRouter.js'
@@ -54,7 +53,6 @@ bot.on('message', async ctx => {
 })
 
 bot.launch().then(() => console.log('———   effectivnaya telegram bot launched   ———'))
-
 
 process.once('SIGINT', () => bot.stop('SIGINT'))
 process.once('SIGTERM', () => bot.stop('SIGTERM'))

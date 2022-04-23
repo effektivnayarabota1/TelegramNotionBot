@@ -9,7 +9,8 @@ export default async function discowerTitleById(notion, pageId, option) {
                 throw new Error('Страница удалена. Восстановите, ответив на сообщение со знаком "+".')
             }
         }
-        return res.properties.title.title[0].text.content
+        if (res.properties.title) return res.properties.title.title[0].text.content
+        else return "Страница не поддерживается"
     }).catch(async e => {
         if (e.code == 'object_not_found') {
             throw new Error('Блок не найден.')
