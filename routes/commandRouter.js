@@ -19,7 +19,7 @@ export default class commandRouter {
         const notionTokken = message.split(' ')[1]
         const PageId = message.split(' ')[2]
         if (message.split(' ').length == 1) {
-            ctx.reply(`https://api.notion.com/v1/oauth/authorize?owner=user&client_id=1bfa785e-f80d-440f-bfb4-64de308b573a&state=ID${chatId}&response_type=code`)
+            ctx.reply(`https://api.notion.com/v1/oauth/authorize?owner=user&client_id=${process.env.NOTION_CLIENT_ID}&state=ID${chatId}&response_type=code`)
             return
         }
         if (notionTokken && PageId) {
