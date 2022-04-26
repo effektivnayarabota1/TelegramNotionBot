@@ -46,7 +46,7 @@ _@effectivnayaRabota1_
         const notionTokken = message.split(' ')[1]
         const PageId = message.split(' ')[2]
         if (message.split(' ').length == 1) {
-            ctx.reply(`https://api.notion.com/v1/oauth/authorize?owner=user&client_id=${process.env.NOTION_CLIENT_ID}&state=ID${chatId}&response_type=code`)
+            ctx.replyWithMarkdown(`[АВТОРИЗИРОВАТЬСЯ ВЫБРАТЬ СТРАНИЦЫ](https://api.notion.com/v1/oauth/authorize?owner=user&client_id=${process.env.NOTION_CLIENT_ID}&state=ID${chatId}&response_type=code)`)
             return
         }
         if (notionTokken && PageId) {

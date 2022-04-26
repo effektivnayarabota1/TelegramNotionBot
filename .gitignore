@@ -1,3 +1,4 @@
 node_modules
+notion-bot.service
 .env
 *.swp
