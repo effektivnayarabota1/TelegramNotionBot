@@ -36,7 +36,7 @@ bot.on('message', async ctx => {
 })
 
 bot.launch().then(() => console.log('———   effectivnaya telegram bot launched   ———'))
-app.listen(3000, () => console.log('———   effectivnaya rabota server start   ———'))
+// app.listen(3000, () => console.log('———   effectivnaya rabota server start   ———'))
 
 
 process.once('SIGINT', () => bot.stop('SIGINT'))
