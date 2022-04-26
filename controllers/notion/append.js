@@ -9,8 +9,8 @@ export default class append {
         const notes = message.cli.notes
         let reses = []
         for (let note of notes) {
-            const pages = await search(notion, note.title)
-            if (!pages) {
+            const pages = await search(notion, note.title, PageId)
+            if (!pages.length) {
                 //Если поиск не нашел страницы.
                 reses.push(await notion.pages.create({
                     parent: {
@@ -19,11 +19,19 @@ export default class append {
                     properties: {
                         title: [{
                             "text": {
-                                "content": note.title
+                                "content": note.title.length > 2000 ? note.title.slice(0, 77) + " ..." : note.title
                             }
                         }]
                     }
                 }).then(async res => {
+                    if (note.title.length > 2000) {
+                        let last
+                        for (let i = 0; i < note.title.length; i += 1000) {
+                            note.blocks.push(note.title.slice(i - 1000, i))
+                            last = i
+                        }
+                        note.blocks.push(note.title.slice(last))
+                    }
                     return await this.paragraphs(notion, {
                         cli: {
                             paragraphs: note.blocks

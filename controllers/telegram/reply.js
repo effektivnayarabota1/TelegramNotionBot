@@ -43,7 +43,6 @@ export default class Reply {
                     } else if (option == 'removeBlock') {
                         await ctx.replyWithMarkdown(`\`- ${childsQuantity} ▾\``)
                     }
-                    console.log(childrens)
                     for (let child of childrens) {
                         const parentUrl = url
                         const childUrl = child.url

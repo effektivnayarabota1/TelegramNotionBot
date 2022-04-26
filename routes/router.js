@@ -4,6 +4,41 @@ import notionPageId from "../services/notionPageId.js"
 import reply from '../controllers/telegram/reply.js'
 
 export default class router {
+    static async help(ctx) {
+        ctx.replyWithMarkdown(`
+_@NotionRabota1Bot_
+
+/init – Авторизироваться.
+/list – Показать все страницы.
+
+*ДОБАВИТЬ НОВУЮ СТРАНИЦУ*
+Для добавления новой страницы необходимо отправить сообщение в формате:
+
+\`\`\`
+    Заголовок 1
+    Параграф
+    Новый абзац
+
+    Новый параграф
+    Новый абзац
+\`\`\`
+
+*РАЗВЕРНУТЬ*
+Ответить на сообщение бота со знаком " . "
+
+*ДОПОЛНИТЬ*
+Ответить необходимым дополнением.
+
+*УДАЛИТЬ*
+Ответить со знаком "-"
+
+*ВОССТАНОВИТЬ*
+Ответить со знаком "+"
+
+_@effectivnayaRabota1_
+`)
+    }
+
     static async init(ctx) {
         const message = ctx.message.text
         const chatId = ctx.message.chat.id
@@ -19,14 +54,15 @@ export default class router {
                 notionTokken: notionTokken,
                 PageId: PageId
             }
-            await ctx.replyWithMarkdown(`\`${message}\``)
+            // await ctx.replyWithMarkdown(`\`${message}\``)
+            await ctx.replyWithMarkdown(`Инициализация прошла успешно.\n/list – Развернуть страницу`)
         } else await ctx.reply(`Страница уже инициализирована.`)
         return
     }
 
     static async list(ctx) {
         try {
-            if (!ctx.session) throw new Error('Инициализируйте страницу, отправив /init, или восстановите старую регистрацию.')
+            if (!ctx.session) throw new Error('Инициализируйте страницу, отправив /init, или восстановите старую регистрацию, я её закреплял.')
 
             const [notion, PageId] = await notionPageId(ctx)
             const message = new Message()

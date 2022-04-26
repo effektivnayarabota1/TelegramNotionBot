@@ -10,7 +10,6 @@ export default async function discowerTitleById(notion, pageId, option) {
             }
         }
         if (res.properties.title) return res.properties.title.title[0].text.content
-        else throw new Error('На данный момент database страницы не поддерживаются')
     }).catch(async e => {
         if (e.code == 'object_not_found') {
             throw new Error('Блок не найден.')
