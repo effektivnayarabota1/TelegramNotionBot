@@ -1,3 +1,6 @@
+import smile from '../../services/smile.js'
+import Romb from '../../services/romb.js'
+
 export default class Reply {
 
     static async listReply(ctx, res, option) {
@@ -6,10 +9,10 @@ export default class Reply {
         const parents = res.parents
         const parentsQuantity = parents.length
 
-        await ctx.replyWithMarkdown(`\`${await this.smile()}\``)
+        await ctx.replyWithMarkdown(`\`${await smile()}\``)
 
         if (!option) {
-            const romb = await this.romb()
+            const romb = await Romb()
             await ctx.replyWithMarkdown(`\`▾   ${romb}   ${childsQuantity||parentsQuantity}   ${romb}   ▾\``)
         } else if (option == 'addPage') {
             await ctx.replyWithMarkdown('`▾   +   1   +   ▾`')
@@ -40,6 +43,7 @@ export default class Reply {
                     } else if (option == 'removeBlock') {
                         await ctx.replyWithMarkdown(`\`- ${childsQuantity} ▾\``)
                     }
+                    console.log(childrens)
                     for (let child of childrens) {
                         const parentUrl = url
                         const childUrl = child.url
@@ -83,23 +87,4 @@ export default class Reply {
         //     { caption: `▾   [IMAGE](${photoUrl})   [.](${parentUrl})[.](${childUrl})`, parse_mode: 'Markdown' }
         // )
     }
-
-    static async smile() {
-        const smiles = [
-            '>:(',
-            'O.O',
-            '^o^',
-            '^.^',
-            '(✿◡‿◡)',
-            "(>'-'<)",
-            '¯\_(ツ)_/¯'
-        ]
-        return smiles[Math.round(Math.random() * (smiles.length - 1))]
-    }
-
-    static async romb() {
-        const rombies = '◇▽○◦◯◌◊'
-        return rombies[Math.round(Math.random() * (rombies.length - 1))]
-    }
-
 }
