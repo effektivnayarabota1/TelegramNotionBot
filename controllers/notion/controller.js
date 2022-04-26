@@ -13,7 +13,6 @@ export default class notionController {
     }
 
     static async remove(notion, message, option) {
-        // return await remove(notion, id, option)
         const id = message.bot.id || message.bot.parentId
         if (message.bot.type == 'page') {
             return ([{

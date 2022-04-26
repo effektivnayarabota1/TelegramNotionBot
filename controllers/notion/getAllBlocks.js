@@ -21,7 +21,7 @@ export default async function getAllBlocks(notion, id, message) {
                         url: parentUrl,
                         id: parentId
                     }],
-                    childrens: await blocksToArr(res.results, parentId)
+                    childrens: await blocksToArr(res.results, parentId, notion)
                 }
             } else {
                 return {

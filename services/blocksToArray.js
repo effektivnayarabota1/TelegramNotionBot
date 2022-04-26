@@ -1,7 +1,7 @@
 import notionController from '../controllers/notion/controller.js'
 import idToUrl from './idToUrl.js'
 
-export default async function blocksToArr(blocks, parentId) {
+export default async function blocksToArr(blocks, parentId, notion) {
     let outputArray = []
     for (let block of blocks) {
         let title, text, voiceUrl, url, has_children, photoUrl, caption
@@ -10,7 +10,7 @@ export default async function blocksToArr(blocks, parentId) {
             url = await idToUrl(block.id)
         } else if (block.type == 'paragraph') {
             if (!block.paragraph.rich_text.length) {
-                await notionController.remove({
+                await notionController.remove(notion, {
                     bot: {
                         id: block.id
                     }
