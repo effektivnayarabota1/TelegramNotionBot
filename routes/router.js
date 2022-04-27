@@ -6,7 +6,7 @@ import reply from '../controllers/telegram/reply.js'
 export default class router {
     static async help(ctx) {
         ctx.replyWithMarkdown(`
-*Быстрые заметки в Notion.*
+*БЫСТРЫЕ ЗАМЕТКИ* 
 
 /init – Авторизироваться.
 /list – Показать все страницы.
@@ -64,7 +64,7 @@ _by @effectivnayaRabota1_
 
     static async list(ctx) {
         try {
-            if (!ctx.session) throw new Error('Инициализируйте страницу, отправив /init, или восстановите старую регистрацию, я её закреплял.')
+            if (!ctx.session) throw new Error('Инициализируйте страницу, отправив /init, или восстановите регистрацию, я её закреплял.')
 
             const [notion, PageId] = await notionPageId(ctx)
             const message = new Message()
@@ -80,7 +80,7 @@ _by @effectivnayaRabota1_
         try {
             if (ctx.message.text && ctx.message.text.match(/^\/init/im)) return
             if (ctx.message.pinned_message && ctx.message.pinned_message.text.match(/^\/init/im)) return
-            if (!ctx.session) throw new Error('Инициализируйте страницу, отправив /init, или восстановите старую регистрацию.')
+            if (!ctx.session) throw new Error('Инициализируйте страницу, отправив /init, или восстановите регистрацию, я её закреплял.')
 
             let res, option
             const [notion, PageId] = await notionPageId(ctx)
