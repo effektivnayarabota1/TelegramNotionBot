@@ -6,7 +6,7 @@ import reply from '../controllers/telegram/reply.js'
 export default class router {
     static async help(ctx) {
         ctx.replyWithMarkdown(`
-*БЫСТРЫЕ ЗАМЕТКИ* 
+*БЫСТРЫЕ ЗАМЕТКИ В NOTION* 
 
 /init – Авторизироваться.
 /list – Показать все страницы.
