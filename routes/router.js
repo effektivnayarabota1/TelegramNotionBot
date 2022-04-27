@@ -3,6 +3,7 @@ import telegramController from "../controllers/telegram/controller.js"
 import notionPageId from "../services/notionPageId.js"
 import reply from '../controllers/telegram/reply.js'
 
+export default class router {
     static async help(ctx) {
         ctx.replyWithMarkdown(`
 *Быстрые заметки в Notion.*
