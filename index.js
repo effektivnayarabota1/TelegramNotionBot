@@ -21,6 +21,7 @@ bot.telegram.setMyCommands(COMMANDS)
 
 //TODO Переписать передачу notion и ParentId. Может быть добавить в Message?
 
+bot.start(async ctx => router.help(ctx))
 bot.help(async ctx => router.help(ctx))
 bot.command('list', async ctx => {
     router.list(ctx)

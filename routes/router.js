@@ -3,10 +3,9 @@ import telegramController from "../controllers/telegram/controller.js"
 import notionPageId from "../services/notionPageId.js"
 import reply from '../controllers/telegram/reply.js'
 
-export default class router {
     static async help(ctx) {
         ctx.replyWithMarkdown(`
-_@NotionRabota1Bot_
+*Быстрые заметки в Notion.*
 
 /init – Авторизироваться.
 /list – Показать все страницы.
@@ -35,7 +34,9 @@ _@NotionRabota1Bot_
 *ВОССТАНОВИТЬ*
 Ответить со знаком "+"
 
-_@effectivnayaRabota1_
+На данный момент можно работать с текстовыми и голосовыми сообщениями на обычных страницах.
+
+_by @effectivnayaRabota1_
 `)
     }
 
