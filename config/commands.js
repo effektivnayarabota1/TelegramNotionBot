@@ -1,13 +1,14 @@
-export const COMMANDS = [{
-        command: "init",
-        description: "Подключить страницы"
-    },
+export const COMMANDS = [
     {
         command: "list",
-        description: "Показать список заметок",
+        description: "Список заметок",
     },
     {
         command: "help",
-        description: "Показать справку",
+        description: "Справка",
+    },
+    {
+        command: "init",
+        description: "Подключить страницы"
     },
 ];
